@@ -91,7 +91,7 @@ def get_ip():
         ip = s.getsockname()[0]
     finally:
         s.close()
-    log("获取IP : " + ip)
+    # log("获取IP : " + ip)
     return ip
 
 
@@ -194,4 +194,8 @@ if __name__ == "__main__":
         log("========== 开始运行 ==========")
         login_protection()
     else:
-        do_login()
+        if do_login():
+            if network_connection_status():
+                print("网络已连接")
+            else:
+                print("网络连接失败")
