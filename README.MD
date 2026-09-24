@@ -27,7 +27,7 @@
 ## 食用方法
 1. 根据你的系统安装 **python3** 和 **pip**。
     * 建议添加到环境变量 *Add to PATH*
-2. 安装依赖：
+2. 安装依赖：(别把$输进去)
     ```bash
    $ pip install requests 
    ```
@@ -35,7 +35,7 @@
     * 为了防止有小刻不会打开login.py，不会填账号和密码，小刻在此提醒您login.py可以用windows自带的记事本打开，账号密码要填在双引号内，不要忘记保存！！！
     * vlan可以为空
     * **注意True和False的大写**
-4. 运行 **login.py**
+4. 运行 **login.py**(别把$输进去)
     ```bash
     $ cd Campus_Network_Login/        # 在终端中打开文件夹
     $ python login.py                 # 运行
