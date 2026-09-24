@@ -15,30 +15,35 @@ from requests.exceptions import HTTPError, Timeout
 
 
 # ====================-> 账密 <-======================
-userid = ""                                             # <- 账号
-password = ""                                           # <- 密码
+userid = ""                                         # <- 账号
+password = ""                                       # <- 密码
 
 # ====================-> 设备 <-======================
-this_is_PC = True                                       # <- True 以电脑方式登录,False 为手机方式登录(注意大写)
-MAC = "1a%3A7c%3A46%3A02%3A35%3A7c"                     # <- URL编码的MAC地址(不必为真实的MAC地址)
-hostname = "MIKU"                                       # <- 主机名
-vlan = ""                                               # <- vlan,可以为空
+this_is_PC = True                                   # <- True 以电脑方式登录,False 为手机方式登录(注意大写)
+MAC = "1a%3A7c%3A46%3A02%3A35%3A7c"                 # <- URL编码的MAC地址(不必为真实的MAC地址)
+hostname = "MIKU"                                   # <- 主机名(不必为真实的主机名)
+vlan = ""                                           # <- vlan(可以为空)
 
 # ==================-> 自动重联 <-=====================
-auto_reconnect = True                                   # <- 自动重联功能
-passwd_error_out = True                                 # <- 密码错误时退出
-waiting_for_startup_time = 10                           # <- 启动后等待时间(s)
-sleeptime = 60                                          # <- 联网状态检测时间间隔(s)
-login_retry_time = 30                                   # <- 重试登录间隔，由于会进行网络检测，时间变长(s)
-retry_count = 0                                         # <- 重试登录次数，0为无限次(s)
+auto_reconnect = True                               # <- 自动重联功能
+passwd_error_out = True                             # <- 密码错误时退出
+waiting_for_startup_time = 10                       # <- 启动后等待时间(s)
+sleeptime = 60                                      # <- 联网状态检测时间间隔(s)
+login_retry_time = 30                               # <- 重试登录间隔，由于会进行网络检测，时间变长(s)
+retry_count = 0                                     # <- 重试登录次数，0为无限次(s)
+
+# ==================-> 网络检测 <-=====================
+network_check_count = 3                             # <- 网络检测时最大尝试次数
+network_check_sleep_time = 10                       # <- 网络检测不通过时，下次网络检测间隔时间
+network_check_web = "https://www.baidu.com"         # <- 测试网络连接用的网站
 
 # ====================================================
 
 
 def logo():
     logo_str = """
-        ^
-       /_\\
+         ^
+        /_\\
       |＝|＝|
  __   |＝|＝|   __
 |==|  |＝|＝|  |==|
@@ -55,23 +60,21 @@ login_url = "http://10.100.100.4/quickauth.do?"
 
 def get_headers():
     headers_PC = {
-        "Accept" : "application/json, text/javascript, */*; q=0.01",
-        "Accept-Encoding" : "gzip, deflate",
-        "Accept-Language" : "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-        "Connection" : "keep-alive",
-        "Cookie" : "",
-        "DNT" : "1",
-        "Host" : "10.100.100.4",
-        "Referer" : "",
-        "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
-        "X-Requested-With" : "XMLHttpRequest"
-        }
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Accept-Encoding": "gzip, deflate",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "Connection": "keep-alive",
+        "Cookie": "",
+        "DNT": "1",
+        "Host": "10.100.100.4",
+        "Referer": "",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
+        "X-Requested-With": "XMLHttpRequest"
+    }
     if this_is_PC:
         return headers_PC
     else:
         return ""
-
-
 
 
 def log(msg):
@@ -110,18 +113,20 @@ def get_url():
 
 
 def network_connection_status():
-    try:
-        log("测试网络连接...")
-        status = session.get("https://www.baidu.com").status_code
-        if status == 200:
-            log("已连接网络")
-            return True
-        else:
+    network_web = network_check_web
+    for i in range(network_check_count):
+        log(f"第{i + 1}次测试网络连接...")
+        try:
+            status = session.get(network_web).status_code
+            if status == 200:
+                log("已连接网络")
+                return True
+            else:
+                log("网络连接已断开")
+        except Exception:
             log("网络连接已断开")
-            return False
-    except Exception:
-        log("网络连接已断开")
-        return False
+        time.sleep(network_check_sleep_time)
+    return False
 
 
 def do_login():
@@ -130,8 +135,8 @@ def do_login():
         url = get_url()
         headers = get_headers()
         log("登录中...")
-        response = requests.get(url, headers=headers,timeout=5)
-        response.raise_for_status()         # 检查 HTTP 状态码是否正常，如果是 4xx/5xx 会抛出 HTTPError
+        response = requests.get(url, headers=headers, timeout=5)
+        response.raise_for_status()  # 检查 HTTP 状态码是否正常，如果是 4xx/5xx 会抛出 HTTPError
         data = response.json()
         # print(data)
 
@@ -190,12 +195,3 @@ if __name__ == "__main__":
         login_protection()
     else:
         do_login()
-
-
-
-
-
-
-
-
-
