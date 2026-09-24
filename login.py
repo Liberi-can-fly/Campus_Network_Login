@@ -33,8 +33,8 @@ login_retry_time = 30                               # <- 重试登录间隔，�
 retry_count = 0                                     # <- 重试登录次数，0为无限次(s)
 
 # ==================-> 网络检测 <-=====================
-network_check_count = 3                             # <- 网络检测时最大尝试次数
-network_check_sleep_time = 10                       # <- 网络检测不通过时，下次网络检测间隔时间
+network_check_count = 3                             # <- 网络检测时最大尝试次数(s)
+network_check_sleep_time = 10                       # <- 网络检测不通过时，下次网络检测间隔时间(s)
 network_check_web = "https://www.baidu.com"         # <- 测试网络连接用的网站
 
 # ====================================================
